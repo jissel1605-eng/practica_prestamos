@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="prestamo_prestamo_view_list" model="ir.ui.view">
+        <field name="name">prestamo.prestamo.list</field>
+        <field name="model">prestamo.prestamo</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="state == 'atrasado'"
+                  decoration-muted="state == 'devuelto'">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="fecha_prestamo"/>
+                <field name="fecha_devolucion"/>
+                <field name="state" widget="badge"/>
+                <field name="cantidad_equipos"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="prestamo_prestamo_view_form" model="ir.ui.view">
+        <field name="name">prestamo.prestamo.form</field>
+        <field name="model">prestamo.prestamo</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_prestar"
+                            string="Prestar"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'borrador'"/>
+                    <button name="action_devolver"
+                            string="Devolver"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state not in ('prestado', 'atrasado')"/>
+                    <button name="action_marcar_atrasado"
+                            string="Marcar atrasado"
+                            type="object"
+                            invisible="state != 'prestado'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="borrador,prestado,devuelto,atrasado"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Motivo del préstamo"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id" readonly="state != 'borrador'"/>
+                            <field name="tipo_solicitante" readonly="state != 'borrador'"/>
+                            <field name="cantidad_equipos" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="fecha_prestamo" readonly="state != 'borrador'"/>
+                            <field name="fecha_devolucion" readonly="state != 'borrador'"/>
+                            <field name="dias_prestamo" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="equipos" string="Equipos">
+                            <field name="linea_ids" readonly="state != 'borrador'">
+                                <list editable="bottom">
+                                    <field name="equipo_id"/>
+                                    <field name="categoria"/>
+                                    <field name="observacion"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="prestamo_prestamo_view_search" model="ir.ui.view">
+        <field name="name">prestamo.prestamo.search</field>
+        <field name="model">prestamo.prestamo</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <filter name="activos"
+                        string="Activos"
+                        domain="[('state', 'in', ['prestado', 'atrasado'])]"/>
+                <filter name="atrasados"
+                        string="Atrasados"
+                        domain="[('state', '=', 'atrasado')]"/>
+                <group>
+                    <filter name="group_state"
+                            string="Estado"
+                            context="{'group_by': 'state'}"/>
+                    <filter name="group_partner"
+                            string="Solicitante"
+                            context="{'group_by': 'partner_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="prestamo_prestamo_action" model="ir.actions.act_window">
+        <field name="name">Préstamos</field>
+        <field name="res_model">prestamo.prestamo</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="prestamo_prestamo_view_search"/>
+    </record>
+
+    <menuitem id="prestamo_prestamo_menu"
+              name="Préstamos"
+              parent="prestamo_menu_root"
+              action="prestamo_prestamo_action"
+              sequence="10"/>
+</odoo>
