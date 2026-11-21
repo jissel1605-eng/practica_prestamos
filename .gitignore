@@ -1,0 +1,9 @@
+@"
+__pycache__/
+*.py[cod]
+*.log
+*.dump
+*.sql
+*.bak
+odoo.conf
+"@ | Set-Content -Encoding UTF8 .gitignore
